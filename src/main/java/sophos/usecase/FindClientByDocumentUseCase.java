@@ -22,6 +22,7 @@ public class FindClientByDocumentUseCase {
 		clientDto.setDocument(client.getDocument());
 		clientDto.setDocumentType(client.getDocumentType());
 		clientDto.setDateOfBirth(client.getDateOfBirth().toString());
+		clientDto.setStatus(client.isStatus());
 		
 		
 		return clientDto;

@@ -11,6 +11,17 @@ public class ClientDTO implements Serializable {
 	private String lastname;
 	private String email;
 	private String dateOfBirth;
+	private boolean status;
+	
+	
+
+	public boolean isStatus() {
+		return status;
+	}
+
+	public void setStatus(boolean status) {
+		this.status = status;
+	}
 
 	public int getId() {
 		return id;

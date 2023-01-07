@@ -3,12 +3,16 @@ package sophos.controller;
 import java.text.ParseException;
 import java.util.ArrayList;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import sophos.dto.AddProductToClientDTO;
@@ -22,6 +26,7 @@ import sophos.usecase.CreateClientUseCase;
 import sophos.usecase.DeleteClientUseCase;
 import sophos.usecase.FindClientByDocumentUseCase;
 import sophos.usecase.FindClientUseCase;
+import sophos.usecase.UpdateClientUseCase;
 
 @RestController
 @RequestMapping("/client")
@@ -52,9 +57,11 @@ public class ClientController {
 	}
 	
 	@GetMapping("/list")
-	public ArrayList<ClientDTO> all() {
+	public @ResponseBody ResponseEntity<Object> all() {
 		ClientListUseCase useCase = new ClientListUseCase();
-		return useCase.execute();
+		ArrayList<ClientDTO> list =useCase.execute();
+		
+		return new ResponseEntity<Object>(list, HttpStatus.OK);
 	}
 	
 	@GetMapping("/documentType/{documentType}/document/{document}")
@@ -107,5 +114,14 @@ public class ClientController {
 		}
 						
 		return message;
-	}	
+	}
+	
+	@PutMapping("/update")
+	public String update(@RequestBody ClientDTO updateCliente) throws ParseException {
+		
+		UpdateClientUseCase useCase = new UpdateClientUseCase();
+		return useCase.execute(updateCliente);
+		
+		
+	}
 }

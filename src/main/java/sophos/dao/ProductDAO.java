@@ -21,15 +21,21 @@ public class ProductDAO implements ProductRepository {
 	
 	@Override
 	public boolean save(Product product) {
+		
         try {
-            String strQuery = "INSERT INTO products(client_id, type, number, isGMF, createdBy, updatedBy) ";
-            strQuery += "VALUES (?, ?, ?, ?, 'Admin', 'Admin')";
+            String strQuery = "INSERT INTO products(client_id, type, number, isGMF, overdraft, createdBy, updatedBy) ";
+            strQuery += "VALUES (?, ?, ?, ?, ?, 'Admin', 'Admin')";
             
             PreparedStatement stmt = this.source.conn().prepareStatement(strQuery);
             stmt.setInt(1, product.getClient().getId());
             stmt.setString(2, product.getType());
             stmt.setString(3, product.getNumber());
             stmt.setBoolean(4, product.isExemptGMF());
+            stmt.setDouble(5,  0);
+            if (product.getType() == "Corriente") {
+            	CheckingAccount checkingAccount =	(CheckingAccount)product;            	
+            	stmt.setDouble(5,  checkingAccount.getOverdraft());           
+            }
 
             stmt.execute();
 

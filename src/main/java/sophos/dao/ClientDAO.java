@@ -60,8 +60,40 @@ public class ClientDAO implements ClientRepository {
 
 	@Override
 	public boolean update(Client client) {
-		// TODO Auto-generated method stub
-		return false;
+		try {
+            String strQuery = "UPDATE clients SET documentType=?,document=?,name=?,lastName=?,email=?,dateOfBirth=?,status=?,updatedOn=NOW(),updatedBy='Admin' WHERE id = ?";
+            
+            java.sql.Date sqlDate = null;
+            if (client.getDateOfBirth() != null) {
+                sqlDate = new Date(client.getDateOfBirth().getTime());
+            }
+
+
+            PreparedStatement stmt = this.source.conn().prepareStatement(strQuery);
+            stmt.setString(1, client.getDocumentType());
+            stmt.setString(2, client.getDocument());
+            stmt.setString(3, client.getName());
+            stmt.setString(4, client.getLastName());
+            stmt.setString(5, client.getEmail());
+            stmt.setDate(6, sqlDate);
+            stmt.setBoolean(7, client.isStatus());
+            stmt.setInt(8, client.getId());
+
+            stmt.execute();
+            
+
+            this.source.CloseConnection();
+
+        } catch(SQLException e) {
+            System.out.println("ClientDAO / update / SQLException: " + e.getMessage());
+            return false;
+        } catch (ClassNotFoundException e) {
+        	System.out.println("ClientDAO / update / ClassNotFoundException: " + e.getMessage());
+            return false;
+		}
+
+        return true;
+
 	}
 
 	@Override
@@ -87,7 +119,7 @@ public class ClientDAO implements ClientRepository {
 	@Override
 	public Client findById(int id) {
         Client client = new Client();
-        String strQuery = "SELECT id, documentType, document, name, lastName, email, dateOfBirth FROM clients WHERE id = ?";
+        String strQuery = "SELECT id, documentType, document, name, lastName, email, dateOfBirth, status FROM clients WHERE id = ?";
         try {
             PreparedStatement stmt = this.source.conn().prepareStatement(strQuery);
             stmt.setInt(1, id);
@@ -102,6 +134,7 @@ public class ClientDAO implements ClientRepository {
                 client.withLastName(rs.getString("lastName"));
                 client.withEmail(rs.getString("email"));
                 client.withDateOfBirth(rs.getDate("dateOfBirth"));
+                client.withStatus(rs.getBoolean("status"));
             }
 
         } catch (SQLException | ClassNotFoundException e) {
@@ -114,7 +147,7 @@ public class ClientDAO implements ClientRepository {
 	@Override
 	public ArrayList<Client> all() {
         ArrayList<Client> clients = new ArrayList<Client>();
-        String strQuery = "SELECT id, documentType, document, name, lastName, email, dateOfBirth, createdOn, createdBy, updatedOn, updatedBy FROM clients";
+        String strQuery = "SELECT id, documentType, document, name, lastName, email, dateOfBirth, status, createdOn, createdBy, updatedOn, updatedBy FROM clients";
         try {
             PreparedStatement stmt = this.source.conn().prepareStatement(strQuery);
 
@@ -132,6 +165,7 @@ public class ClientDAO implements ClientRepository {
                 client.withCreatedBy(rs.getString("createdBy"));
                 client.withUpdatedOn(rs.getString("updatedOn"));
                 client.withUpdatedBy(rs.getString("updatedBy"));
+                client.withStatus(rs.getBoolean("status"));
 
                 clients.add(client);
             }
@@ -146,7 +180,7 @@ public class ClientDAO implements ClientRepository {
 	@Override
 	public Client findByDocument(String documentType, String document) {
         Client client = new Client();
-        String strQuery = "SELECT id, documentType, document, name, lastName, email, dateOfBirth, createdOn, createdBy, updatedOn, updatedBy FROM clients WHERE documentType = ? AND document = ?";
+        String strQuery = "SELECT id, documentType, document, name, lastName, email, dateOfBirth, status, createdOn, createdBy, updatedOn, updatedBy FROM clients WHERE documentType = ? AND document = ?";
         try {        	
             PreparedStatement stmt = this.source.conn().prepareStatement(strQuery);
             stmt.setString(1, documentType);
@@ -165,6 +199,7 @@ public class ClientDAO implements ClientRepository {
                 client.withCreatedBy(rs.getString("createdBy"));
                 client.withUpdatedOn(rs.getString("updatedOn"));
                 client.withUpdatedBy(rs.getString("updatedBy"));
+                client.withStatus(rs.getBoolean("status"));
             }
 
         } catch (SQLException | ClassNotFoundException e) {

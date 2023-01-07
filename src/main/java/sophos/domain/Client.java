@@ -21,6 +21,7 @@ public class Client  {
 	private String lastName;
 	private String email;
 	private Date dateOfBirth;
+	private boolean status;
 	private String createdOn;
 	private String createdBy;
 	private String updatedOn;
@@ -35,6 +36,15 @@ public class Client  {
 
 	public Client withId(int id) {
 		this.id = id;
+		return this;
+	}
+	
+	public boolean isStatus() {
+		return status;
+	}
+
+	public Client withStatus(boolean status) {
+		this.status = status;
 		return this;
 	}
 
@@ -192,4 +202,7 @@ public class Client  {
     	return this.repository.delete(this.id);
     }
     
+    public boolean update() {
+    	return this.repository.update(this);
+    }
 }

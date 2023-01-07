@@ -23,6 +23,8 @@ public class ClientListUseCase {
 			clientDto.setEmail(client.getEmail());
 			clientDto.setDocument(client.getDocument());
 			clientDto.setDateOfBirth(client.getDateOfBirth().toString());
+			clientDto.setStatus(client.isStatus());
+			
 			
 			clientList.add(clientDto);
 			

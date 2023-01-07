@@ -17,7 +17,7 @@ public class AddProductToClientUseCase {
 		
 		Product product = new SavingsAccount();
 		if (addProduct.getTypeProduct() == 'C') {
-			product = new CheckingAccount();
+			product = new CheckingAccount();			
 		}
 		
 		product.withExemptGMF(addProduct.isExemptGMF());
