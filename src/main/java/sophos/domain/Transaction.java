@@ -115,8 +115,7 @@ public abstract class Transaction {
     		return result;
     	}
     	
-    	this.withAmount(this.amount).withIsDebit(true).withBalance(product.getBalance());
-    	System.out.println("withDraw / product.getBalance(): " +product.getBalance());
+    	this.withAmount(this.amount).withIsDebit(true).withBalance(product.getBalance());    	
     	
     	boolean success = this.repository.create(this);
         if (!success) {

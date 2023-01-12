@@ -162,6 +162,10 @@ public abstract class Product {
         return this.repository.updateBalance(this);
     }
 	
+	public boolean assignGMF() {
+		return this.repository.assignGMF(this);
+	}
+	
 	
 	public abstract String getType();
 	

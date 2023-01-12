@@ -3,6 +3,7 @@ package sophos.dao;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 
 import sophos.domain.CheckingAccount;
@@ -46,7 +47,7 @@ public class TransactionDAO implements TransactionRepository {
     @Override
     public ArrayList<Transaction> transfersByAccount(String accountNumber) {
         ArrayList<Transaction> transactions = new ArrayList<Transaction>();
-        String strQuery = "SELECT \n"
+        String strQuery = "SELECT "
         		+ "w.id as id, w.date as date, w.accountNumber as accountNumber, w.amount as amount, w.balance as balance, w.description as description, w.isDebit, w.type, "
         		+ "p.type as typeProduct, p.isGMF, p.id as idProduct "
         		+ "FROM "
@@ -60,6 +61,7 @@ public class TransactionDAO implements TransactionRepository {
             stmt.setString(1, accountNumber);
             
             ResultSet rs = stmt.executeQuery();
+                        
             while (rs.next()) {            	
 	            Product product = new SavingsAccount();
 	            if (rs.getString("typeProduct").equals("Corriente")) {
@@ -67,6 +69,7 @@ public class TransactionDAO implements TransactionRepository {
 	            }
 	            product.withId(rs.getInt("idProduct"));
 	            product.withNumber(rs.getString("accountNumber"));
+	            
 	            
 	            Transaction transaction = TransactionFactory.get(rs.getString("type"));	            
 	            transaction.withtId(rs.getInt("id"));

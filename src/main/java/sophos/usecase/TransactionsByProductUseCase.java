@@ -12,7 +12,7 @@ public class TransactionsByProductUseCase {
 		ArrayList<TransactionDTO> transactions = new ArrayList<TransactionDTO>();
 				
 		for(Transaction transaction : Transaction.transactionsByProduct(numberAccount)) {
-			
+					
 			TransactionDTO txDto = new TransactionDTO();
 			txDto.setId(transaction.getId());
 			txDto.setAccountNumber(transaction.getAccount().getNumber());

@@ -221,6 +221,58 @@ public class ProductDAO implements ProductRepository {
         }
         return true;
 	}
+
+	
+	private boolean updateGMFToFalseAllProducts(int idClient) {
+        try {
+            String strQuery = "update products set isGMF = 0, updatedOn=NOW() where client_id = ? ";            
+            PreparedStatement stmt = this.source.conn().prepareStatement(strQuery);
+            stmt.setInt(1, idClient);
+            
+            stmt.execute();
+
+            this.source.CloseConnection();
+
+        } catch(SQLException e) {
+            System.out.println("ProductDAO / updateGMFToFalseAllProducts / SQLException: " + e.getMessage());
+            return false;
+        } catch (ClassNotFoundException e) {
+        	System.out.println("ProductDAO / updateGMFToFalseAllProducts / ClassNotFoundException: " + e.getMessage());
+            return false;
+		}
+
+        return true;		
+	}
+
+	@Override
+	public boolean assignGMF(Product product) {
+        try {
+        	
+        	boolean success = this.updateGMFToFalseAllProducts(product.getClient().getId());
+        	if (!success) {
+        		return false;
+        	}
+        	
+            String strQuery = "update products set isGMF = 1, updatedOn=NOW() where id = ? ";            
+                              
+            
+            PreparedStatement stmt = this.source.conn().prepareStatement(strQuery);
+            stmt.setInt(1, product.getId());            
+            
+            stmt.execute();
+
+            this.source.CloseConnection();
+
+        } catch(SQLException e) {
+            System.out.println("ProductDAO / assignGMF / SQLException: " + e.getMessage());
+            return false;
+        } catch (ClassNotFoundException e) {
+        	System.out.println("ProductDAO / assignGMF / ClassNotFoundException: " + e.getMessage());
+            return false;
+		}
+
+        return true;
+	}
 	
 
 }

@@ -26,17 +26,14 @@ public class SavingsAccount extends Product {
         newBalance = this.getBalance() - (amountToPaid + (amountToPaid * tax));
 		
         if (newBalance < 0) {
-        	System.out.println("No tiene fondos suficientes - NO IMPORTA SI ESTA O NO EXENTA");
         	return "No tiene fondos suficientes";        	
         }
         
         if (this.isExemptGMF() && (amountToPaid > this.getBalance())) {
-        	System.out.println("No tiene fondos suficientes - exenta");
         	return "No tiene fondos suficientes";
         }
         
         if (!this.isExemptGMF() && (amountToPaid >= this.getBalance())) {
-        	System.out.println("No tiene fondos suficientes - NO exenta");
         	return "No tiene fondos suficientes";
         }
         

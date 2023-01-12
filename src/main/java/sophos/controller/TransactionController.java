@@ -31,8 +31,10 @@ public class TransactionController {
                 return "Número de cuenta destino no válido";
             }
         }
+        
+        String result = new MakeTransactionUseCase().execute(dto);
 
-        return new MakeTransactionUseCase().execute(dto);
+        return result;
         
     }
 	

@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import sophos.dto.ProductDTO;
+import sophos.usecase.AssignGMFUseCase;
 import sophos.usecase.FindProductByNumberUseCase;
 import sophos.usecase.UpdateProductStateUseCase;
 
@@ -84,4 +85,22 @@ public class ProductController {
 						
 		return productDto;
 	}
+	
+	@PutMapping("/assign-gmf/{id}")
+	public String assignGMF(@PathVariable(value="id") String id) {
+		String message;
+		
+		try {		
+			int idProduct= Integer.parseInt(id);		
+			
+			AssignGMFUseCase useCase = new AssignGMFUseCase(); 
+			message = useCase.execute(idProduct);
+			
+		} catch(NumberFormatException e) {			
+			e.printStackTrace();
+			message = "parámetro no válido";
+		}
+						
+		return message;
+	}	
 }

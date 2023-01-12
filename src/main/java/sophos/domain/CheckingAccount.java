@@ -59,7 +59,6 @@ public class CheckingAccount extends Product {
         if (newBalance < 0) {
         	
         	if (!youHaveOverdraftAvailable(newBalance)) {
-        		System.out.println("No tiene saldo suficiente");
         		return "No tiene saldo suficiente";
         	}
         	
