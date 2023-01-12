@@ -41,6 +41,10 @@ public abstract class Product {
 	public String getState() {
 		return state;
 	}
+	
+	public boolean isCancelled() {
+		return this.state.equals("CANCELADA");
+	}
 
 	public Product withState(String state) {
 		this.state = state;
@@ -158,8 +162,13 @@ public abstract class Product {
         return this.repository.updateBalance(this);
     }
 	
+	
 	public abstract String getType();
 	
 	public abstract void generateAccountNumber();
+	
+	public abstract String withDraw(double amountToPaid);
+	
+	public abstract String deposit(double amountToPaid);
 
 }

@@ -9,14 +9,14 @@ public class Transfer extends Transaction{
 
     @Override
     public String execute() {
-        boolean success = this.withDraw(this.getAccount());
-        if (!success) {
-            return "Error: La transacción no se ha podido completar";
+        String result= this.withDraw(this.getAccount());
+        if (result != null) {
+            return result;
         }
 
-        success = this.deposit(this.getToAccount());
-        if (!success) {
-            return "Error: La transacción no se ha podido completar";
+        result = this.deposit(this.getToAccount());
+        if (result!=null) {
+            return result;
         }
 
         return "La transacción ha sido exitosa";

@@ -2,6 +2,7 @@ package sophos.domain;
 
 
 import java.sql.Date;
+import java.util.ArrayList;
 
 import sophos.dao.TransactionDAO;
 import sophos.repositories.TransactionRepository;
@@ -11,6 +12,7 @@ public abstract class Transaction {
     protected Date date;
     protected Product account;
     protected Double amount;
+    protected Double balance;
     protected String description;
     protected boolean isDebit;
     protected Product toAccount;
@@ -69,8 +71,18 @@ public abstract class Transaction {
         this.description = description;
         return this;
     }
+        
 
-    public Product getToAccount() {
+    public Double getBalance() {
+		return balance;
+	}
+
+	public Transaction withBalance(Double balance) {
+		this.balance = balance;
+		return this;
+	}
+
+	public Product getToAccount() {
         return toAccount;
     }
 
@@ -79,75 +91,47 @@ public abstract class Transaction {
         return this;
     }
 
-    protected boolean deposit(Product account) {
-        this.withAmount(this.amount).withIsDebit(false);
+    protected String deposit(Product product) {
+        
+        String result = product.deposit(this.amount);
+    	if (result!=null) {
+    		return result;
+    	}
+    	    	
+    	this.withAmount(this.amount).withIsDebit(false).withBalance(product.getBalance());
 
-        boolean success = account
-                .withBalance(account.getBalance() + this.amount)
-                .withAvailableBalance(account.getBalance())
-                .updateBalance();
-
+        boolean success = this.repository.create(this);
         if (!success) {
-            return false;
+        	return "Ha ocurrido un error durante la transacción";
         }
 
-        success = this.repository.create(this);
-        if (!success) {
-            return false;
-        }
-
-        return true;
+        return null;
     }
 
-    protected boolean withDraw(Product account) {
-        double newBalance = 0;
-        double newAvalaibleBalance = 0;
-        double tax = 0;
-        this.withAmount(this.amount).withIsDebit(true);
-
-        if (!account.isExemptGMF()) {
-            tax = 0.004;
-        }
-        
-
-        if (this.amount > account.getAvailableBalance()) {
-            //return "No tiene fondos suficientes para el monto solicitado";
-        	System.out.println("No tiene fondos suficientes para el monto solicitado 1");
-            return false;
-        }
-
-        newBalance = account.getBalance() - this.amount;
-
-        if (account.getAvailableBalance() >= 1000) {
-            double auxBalance = account.getBalance() - account.getAvailableBalance();
-            newAvalaibleBalance = (account.getBalance() - (this.amount * tax)) - this.amount - auxBalance;
-
-            if (newAvalaibleBalance < 0) {
-                //return "No tiene fondos suficientes para el monto solicitado";
-            	System.out.println("No tiene fondos suficientes para el monto solicitado 2");
-                return false;
-            }
-        }
-
-        boolean success = account
-                .withBalance(newBalance)
-                .withAvailableBalance(newAvalaibleBalance)
-                .updateBalance();
-
+    protected String withDraw(Product product) {
+    	
+    	String result = product.withDraw(this.amount);
+    	if (result!=null) {
+    		return result;
+    	}
+    	
+    	this.withAmount(this.amount).withIsDebit(true).withBalance(product.getBalance());
+    	System.out.println("withDraw / product.getBalance(): " +product.getBalance());
+    	
+    	boolean success = this.repository.create(this);
         if (!success) {
-            //return "Ha ocurrido un error en el sistema";
-            return false;
-        }
+            return "Ha ocurrido un error durante la transacción";
+        }    	
 
-        success = this.repository.create(this);
-        if (!success) {
-            //return "Ha ocurrido un error en el sistema";
-            return false;
-        }
-
-        return true;
+        return null;
     }
 
     public abstract String type();
     public abstract String execute();
+    
+    public static ArrayList<Transaction> transactionsByProduct(String numberAccount) {
+    	TransactionRepository repository = new TransactionDAO();
+    	return repository.transfersByAccount(numberAccount);
+    	
+    }
 }

@@ -8,10 +8,6 @@ public class Deposit extends Transaction{
 
     @Override
     public String execute() {
-        boolean success = this.deposit(this.getAccount());
-        if (!success) {
-            return "Error: La transacción no se ha podido completar";
-        }
-        return "Transacción exitosa";
+        return this.deposit(this.getAccount());
     }
 }

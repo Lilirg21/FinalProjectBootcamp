@@ -1,12 +1,19 @@
 package sophos.controller;
 
+import java.util.ArrayList;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import sophos.dto.ProductDTO;
 import sophos.dto.TransactionDTO;
+import sophos.usecase.FindProductByNumberUseCase;
 import sophos.usecase.MakeTransactionUseCase;
+import sophos.usecase.TransactionsByProductUseCase;
 
 
 @RestController
@@ -28,6 +35,12 @@ public class TransactionController {
         return new MakeTransactionUseCase().execute(dto);
         
     }
+	
+	@GetMapping("/{number}")
+	public ArrayList<TransactionDTO> findProductByNumber(@PathVariable(value="number") String number) {		
+		TransactionsByProductUseCase useCase = new TransactionsByProductUseCase();
+		return useCase.execute(number);		
+	}	
 
 	
     private boolean validatedAccountNumber(String accountNumber) {

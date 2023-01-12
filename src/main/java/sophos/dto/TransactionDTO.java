@@ -11,6 +11,17 @@ public class TransactionDTO {
 	private String isDebit;
 	private String type;
 	private String toAccountNumber;
+	private double Balance;
+
+	
+	
+	public double getBalance() {
+		return Balance;
+	}
+
+	public void setBalance(double balance) {
+		Balance = balance;
+	}
 
 	public int getId() {
 		return id;

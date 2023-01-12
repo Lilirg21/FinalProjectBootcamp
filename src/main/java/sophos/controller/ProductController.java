@@ -1,11 +1,14 @@
 package sophos.controller;
 
 
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import sophos.dto.ProductDTO;
+import sophos.usecase.FindProductByNumberUseCase;
 import sophos.usecase.UpdateProductStateUseCase;
 
 @RestController
@@ -64,5 +67,21 @@ public class ProductController {
 		}
 						
 		return message;
-	}	
+	}
+	
+	@GetMapping("/{number}")
+	public ProductDTO findProductByNumber(@PathVariable(value="number") String number) {
+		ProductDTO productDto = null;
+		
+		try {		
+		
+			FindProductByNumberUseCase useCase = new FindProductByNumberUseCase();
+			productDto = useCase.execute(number);
+			
+		} catch(NumberFormatException e) {			
+			e.printStackTrace();
+		}
+						
+		return productDto;
+	}
 }

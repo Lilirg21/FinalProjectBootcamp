@@ -32,7 +32,7 @@ public class ProductDAO implements ProductRepository {
             stmt.setString(3, product.getNumber());
             stmt.setBoolean(4, product.isExemptGMF());
             stmt.setDouble(5,  0);
-            if (product.getType() == "Corriente") {
+            if (product.getType().equals("Corriente")) {
             	CheckingAccount checkingAccount =	(CheckingAccount)product;            	
             	stmt.setDouble(5,  checkingAccount.getOverdraft());           
             }
@@ -56,15 +56,21 @@ public class ProductDAO implements ProductRepository {
 	public boolean update(Product product) {
         try {
             String strQuery = "UPDATE products SET ";
-            strQuery += "number = ?, state = ?, balance=?, avalaibleBalance=?, isGMF=?, updatedOn=NOW(),updatedBy='Admin' WHERE id = ?";
+            strQuery += "number = ?, state = ?, balance=?, avalaibleBalance=?, isGMF=?, updatedOn=NOW(),updatedBy='Admin', overdraft=(overdraft-?) WHERE id = ?";
+            
+            double overdraft = 0;
+            if(product.getType().equals("Corriente")) {
+            	overdraft = ((CheckingAccount)product).getOverdraft();
+            }                      
             
             PreparedStatement stmt = this.source.conn().prepareStatement(strQuery);
             stmt.setString(1, product.getNumber());
             stmt.setString(2, product.getState());
             stmt.setDouble(3, product.getBalance());
             stmt.setDouble(4, product.getAvailableBalance());
-            stmt.setBoolean(5, product.isExemptGMF());            
-            stmt.setInt(6, product.getId());
+            stmt.setBoolean(5, product.isExemptGMF());
+            stmt.setDouble(6, overdraft);
+            stmt.setInt(7, product.getId());
             
             stmt.execute();
 
@@ -85,7 +91,7 @@ public class ProductDAO implements ProductRepository {
 	public Product findProductById(int id) {
         Product product = new SavingsAccount();
         String strType = "";
-        String strQuery = "SELECT id, client_id, type, number, state, TRUNCATE(balance,2) as balance, TRUNCATE(avalaibleBalance,2) as avalaibleBalance, isGMF FROM products WHERE id = ? ";
+        String strQuery = "SELECT id, client_id, type, number, state, TRUNCATE(balance,2) as balance, TRUNCATE(avalaibleBalance,2) as avalaibleBalance, isGMF, TRUNCATE(overdraft,2) as overdraft FROM products WHERE id = ? ";
         try {
             PreparedStatement stmt = this.source.conn().prepareStatement(strQuery);
             stmt.setInt(1, id);
@@ -93,8 +99,9 @@ public class ProductDAO implements ProductRepository {
             if (rs.next()) {
 
                 strType = rs.getString("type");
-                if (strType == "Corriente") {
-                    product = new CheckingAccount();
+                if (strType.equals("Corriente")) {
+                    product = (new CheckingAccount()).withOverdraft(rs.getDouble("overdraft"));
+                    
                 }
                 Client client = new Client();
                 client.withId(rs.getInt("client_id"));
@@ -106,6 +113,7 @@ public class ProductDAO implements ProductRepository {
                 product.withBalance(rs.getDouble("balance"));
                 product.withAvailableBalance(rs.getDouble("avalaibleBalance"));
                 product.withExemptGMF(rs.getBoolean("isGMF"));
+                
             }
 
         } catch (SQLException | ClassNotFoundException e) {
@@ -118,7 +126,7 @@ public class ProductDAO implements ProductRepository {
 	@Override
 	public ArrayList<Product> productsByClient(int idClient) {
         ArrayList<Product> products = new ArrayList<Product>();
-        String strQuery = "SELECT id, number, type, state, TRUNCATE(balance,2) as balance, TRUNCATE(avalaibleBalance,2) as avalaibleBalance, isGMF FROM products WHERE client_id = ? order by state, balance desc";
+        String strQuery = "SELECT id, number, type, state, TRUNCATE(balance,2) as balance, TRUNCATE(avalaibleBalance,2) as avalaibleBalance, isGMF, TRUNCATE(overdraft,2) as overdraft FROM products WHERE client_id = ? order by state, balance desc";        
         try {
         	
             PreparedStatement stmt = this.source.conn().prepareStatement(strQuery);
@@ -130,8 +138,8 @@ public class ProductDAO implements ProductRepository {
             	
             	String strType = rs.getString("type");
             	
-                if (strType == "Corriente") {
-                    product = new CheckingAccount();
+                if (strType.equals("Corriente")) {
+                	product = (new CheckingAccount()).withOverdraft(rs.getDouble("overdraft"));
                 }
                 
                 Client client = new Client();
@@ -159,7 +167,7 @@ public class ProductDAO implements ProductRepository {
 	public Product findByAccountNumber(String accountNumber) {
         Product product = new SavingsAccount();
         String strType = "";
-        String strQuery = "SELECT id, client_id, type, number, state, TRUNCATE(balance, 2) as balance, TRUNCATE(avalaibleBalance,2) as avalaibleBalance, isGMF FROM products WHERE number = ? ";
+        String strQuery = "SELECT id, client_id, type, number, state, TRUNCATE(balance, 2) as balance, TRUNCATE(avalaibleBalance,2) as avalaibleBalance, isGMF, TRUNCATE(overdraft,2) as overdraft FROM products WHERE number = ? ";
         try {
             PreparedStatement stmt = this.source.conn().prepareStatement(strQuery);
             stmt.setString(1, accountNumber);
@@ -167,8 +175,8 @@ public class ProductDAO implements ProductRepository {
             if (rs.next()) {
 
                 strType = rs.getString("type");
-                if (strType == "Corriente") {
-                    product = new CheckingAccount();
+                if (strType.equals("Corriente")) {
+                	product = (new CheckingAccount()).withOverdraft(rs.getDouble("overdraft"));
                 }
                 Client client = new Client();
                 client.withId(rs.getInt("client_id"));
@@ -192,11 +200,19 @@ public class ProductDAO implements ProductRepository {
 	@Override
 	public boolean updateBalance(Product product) {
         try {
-            String strQuery = "UPDATE products SET balance= ?, avalaibleBalance = ?, updatedOn=NOW(), updatedBy='admin' WHERE id = ?";
+            String strQuery = "UPDATE products SET balance= TRUNCATE(?,2), avalaibleBalance = TRUNCATE(?,2), updatedOn=NOW(), updatedBy='admin', overdraft=TRUNCATE(?,2) WHERE id = ?";
+
+            double overdraft = 0;
+            if(product.getType().equals("Corriente")) {
+            	overdraft = ((CheckingAccount)product).getOverdraft();
+            }            
+            
+            
             PreparedStatement stmt = this.source.conn().prepareStatement(strQuery);
             stmt.setDouble(1, product.getBalance());
             stmt.setDouble(2, product.getAvailableBalance());
-            stmt.setInt(3, product.getId());
+            stmt.setDouble(3, overdraft);
+            stmt.setInt(4, product.getId());
             stmt.execute();
             this.source.CloseConnection();
         } catch(SQLException | ClassNotFoundException e) {

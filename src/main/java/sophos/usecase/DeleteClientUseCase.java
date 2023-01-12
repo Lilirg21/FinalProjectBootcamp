@@ -15,7 +15,9 @@ public class DeleteClientUseCase {
 			return "El cliente no puede ser eliminado. Solo se puede eliminar si todas sus cuentas están canceladas";
 		}
 		
-		boolean success = client.delete();
+		client.withStatus(false);
+		
+		boolean success = client.update();
 		if (!success) {
 			return "Ha ocurrido un error al eliminar el cliente";
 		}
